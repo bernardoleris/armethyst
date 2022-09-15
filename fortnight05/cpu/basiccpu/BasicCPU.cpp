@@ -122,12 +122,16 @@ int BasicCPU::ID()
 		case 0x1A000000:
 			return decodeDataProcReg();
 			break;
-		
 		// TODO
 		// implementar o GRUPO A SEGUIR
 		//
-		// 101x Loads and Stores on page C4-237
-
+		// x1x0 Loads and Stores on page C4-237
+		case 0x400001000: // x = 0 && x = 0
+		case 0x600001100: // x = 0 && x = 1
+		case 0xC00011000: // x = 1 && x = 0
+		case 0xD00011100: // x = 1 && x = 1
+			return decodeLoadStore();
+			break;
 		
 		// ATIVIDADE FUTURA
 		// implementar os demais grupos
