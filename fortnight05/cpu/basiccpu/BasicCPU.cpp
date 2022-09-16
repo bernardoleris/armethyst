@@ -229,6 +229,66 @@ int BasicCPU::decodeBranches() {
  *		   1: se a instrução não estiver implementada.
  */
 int BasicCPU::decodeLoadStore() {
+	unsigned int n, d;
+	int imm;
+	
+	/* Add/subtract (immediate) (pp. 233-234)
+		This section describes the encoding of the Add/subtract (immediate)
+		instruction class. The encodings in this section are decoded from
+		Data Processing -- Immediate on page C4-232.
+	*/
+
+	switch (IR & 0xFFC00000)
+	{
+		case 0XB9800000:
+			n = (IR & 0x000003E0) >> 5;
+			if(n==31){
+				A = SP;
+			}else{
+				A = getX(n);
+			}
+			t = (IR & 0x0000001F);
+			if(t==31){
+				Rd = &SR;
+			}else{
+				Rd = &(R[t]);
+			}
+
+			B = (IR & 0X003FFC00) >> 8;
+
+			ALUctrl = ALUctrlFLag::ADD;
+			MEMctrl = MEMctrlFlag::READ64;
+			WBctrl = WBctrlFlag::RegWrite;
+			MemtoReg = true;
+			return 0;
+
+		case 0XB9000000:
+		case 0XF9000000:
+			t = (IR & 0x0000001F);
+			if(t==31){
+				Rd = &ZR;
+			}else{
+				Rd = &(R[t]);
+			}
+			n = (IR & 0x000003E0) >> 5;
+			if(n==31){
+				A = SP;
+			}else{
+				A = getX(n);
+			}
+
+			B = (IR & 0X003FFC00) >> 8;
+
+			ALUctrl = ALUctrlFLag::ADD;
+			MEMctrl = MEMctrlFlag::WRITE64;
+			MemtoReg = false;
+			return 0;
+
+		default:
+			// instrução não implementada
+			return 1;
+	}
+	
 	// instrução não implementada
 	return 1;
 }
